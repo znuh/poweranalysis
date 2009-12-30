@@ -7,6 +7,9 @@ usage: ./dpa <hypothesis> <path to data>
 	example: ./dpa hw:0 ./dpa_data/ to guess byte 0 using hamming width
 
 <path to data> is the dir containing the 0000xxx.dat files along with aes.log
+	sample data is here: https://project.dev.io/hunz/dpa_data.tar.bz2
+	hd won't work for each keybyte due to subbyte/shiftrow optimization
+	hw should work - key should be: a1f6258c877d5fcd8964484538bfc92c
 
 - results.txt contains the correlation curve for the key guess with the highest peak
   you can view it in gnuplot: plot "results.txt" with lines
