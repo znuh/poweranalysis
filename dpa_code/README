@@ -1,0 +1,18 @@
+usage: ./dpa <hypothesis> <path to data>
+
+<hypothesis> consists of <power_model>:<keybyte>
+	power_model is either hw for hamming width or hd for hamming distance
+        use hamming width if unsure
+	keybyte is the byte offset to guess (0..15)
+	example: ./dpa hw:0 ./dpa_data/ to guess byte 0 using hamming width
+
+<path to data> is the dir containing the 0000xxx.dat files along with aes.log
+
+- results.txt contains the correlation curve for the key guess with the highest peak
+  you can view it in gnuplot: plot "results.txt" with lines
+
+- you can only attack one byte at a time
+- to get all keybytes you run dpa 16 times with keybyte 0..15
+
+contact: Zn000h AT gmail.com
+
