@@ -8,7 +8,7 @@ typedef struct mf_s {
 	unsigned long real_len;
 } mf_t;
 
-int map_file(mf_t *mf, char *file, int ofs, int size);
-void unmap_file(mf_t *mf);
+int map_file(mf_t * mf, char *file, int ofs, int size);
+void unmap_file(mf_t * mf);
 
 #endif

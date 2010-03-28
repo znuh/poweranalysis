@@ -18,39 +18,45 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-void skip_char(char sc, char **buf) {
-	char *ptr=*buf;
-	
-	while(*ptr == sc) ptr++;
-	
+void skip_char(char sc, char **buf)
+{
+	char *ptr = *buf;
+
+	while (*ptr == sc)
+		ptr++;
+
 	*buf = ptr;
 }
 
-void find_char(char fc, char **buf) {
-	char *ptr=*buf;
-	
-	while(*ptr != fc) ptr++;
-	
+void find_char(char fc, char **buf)
+{
+	char *ptr = *buf;
+
+	while (*ptr != fc)
+		ptr++;
+
 	*buf = ptr;
 }
 
-char *parse_hex(char *buf, uint8_t *dst, int len) {
-	char tmp[3] = {0, 0, 0};
-	
-	while(len--) {
-		skip_char(' ',&buf);
-		tmp[0]=buf[0];
-		tmp[1]=buf[1];
-		*dst=strtoul(tmp, NULL, 16);
-		buf+=2;
+char *parse_hex(char *buf, uint8_t * dst, int len)
+{
+	char tmp[3] = { 0, 0, 0 };
+
+	while (len--) {
+		skip_char(' ', &buf);
+		tmp[0] = buf[0];
+		tmp[1] = buf[1];
+		*dst = strtoul(tmp, NULL, 16);
+		buf += 2;
 		dst++;
 	}
 	return buf;
 }
 
-void dump_hex(uint8_t *src, int len) {
-	while(len--) {
-		printf("%02x ",*src);
+void dump_hex(uint8_t * src, int len)
+{
+	while (len--) {
+		printf("%02x ", *src);
 		src++;
 	}
 	printf("\n");

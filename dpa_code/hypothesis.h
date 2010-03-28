@@ -14,7 +14,7 @@ typedef struct interim_info_s {
 typedef struct hypo_template_s {
 	void *ptr_a;
 	void *ptr_b;
-	
+
 	int bits_a;
 	int bits_b;
 } hypo_template_t;
@@ -25,7 +25,9 @@ typedef struct hypo_display_s {
 	char text[64];
 } hypo_display_t;
 
-int hypo_templ_gen(char *file, hypo_template_t **dst, hypo_display_t **display);
-void hypo_gen(uint8_t *plain, uint8_t *key, hypo_template_t *templ, uint8_t *dst);
+int hypo_templ_gen(char *file, hypo_template_t ** dst,
+		   hypo_display_t ** display);
+void hypo_gen(uint8_t * plain, uint8_t * key, hypo_template_t * templ,
+	      uint8_t * dst);
 
 #endif

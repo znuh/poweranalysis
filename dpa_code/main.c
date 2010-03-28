@@ -25,134 +25,138 @@
 #include "hypothesis.h"
 #include "utils.h"
 
-#define ABS(a)	(((a)>0)?(a):(-a))			
+#define ABS(a)	(((a)>0)?(a):(-a))
 
-int open_trace(mf_t *mf, char *file) {
-	
-	if(mf->mem)
+int open_trace(mf_t * mf, char *file)
+{
+
+	if (mf->mem)
 		unmap_file(mf);
-		
+
 	assert(!(map_file(mf, file, 0, 0)));
-	
+
 	madvise(mf->ptr, mf->len, MADV_WILLNEED);
-		
+
 	return 0;
 }
 
-int main(int argc, char **argv) {
-	int trace=0;
+int main(int argc, char **argv)
+{
+	int trace = 0;
 	char file[512], cryptdata[128];
 	mf_t trace_mf;
-	dpa_t *dpa=NULL;
+	dpa_t *dpa = NULL;
 	uint8_t hypotheses[1024], key[16], plain[16];
-	int hypos=0;
-	correl_t *results=NULL;
-	time_t start=0, runtime;
+	int hypos = 0;
+	correl_t *results = NULL;
+	time_t start = 0, runtime;
 	int cnt;
-	int last_cnt=0;
+	int last_cnt = 0;
 	FILE *fl, *ptxts;
 	float signif;
-	int best_keybyte=0;
-	float max_correl=0;
+	int best_keybyte = 0;
+	float max_correl = 0;
 	hypo_template_t *hypo_templates;
-	
-	if(argc<=2) {
+
+	if (argc <= 2) {
 		printf("see the README\n");
 		return 0;
 	}
-	
-	sscanf(argv[1],"%2s:%d",file,&cnt);
-	
-	assert((fl=fopen("hypo.txt","w")));
-	
-	if(!(strcmp(file,"hd"))) {
-		printf("Hamming-Distance keybyte %d\n",cnt);
-		fprintf(fl,"sbox_out %d&ff sbox_in %d&ff 0 0\n",cnt,cnt);
-	}
-	else if(!(strcmp(file,"hw"))) {
-		printf("Hamming-Weight keybyte %d\n",cnt);
-		fprintf(fl,"sbox_out %d&ff null 0&ff 0 0\n",cnt);
-	}
-	else {
-		printf("usage: hd:<keybyte> for hamming dist or hw:<keybyte> for hamming weight\n");
+
+	sscanf(argv[1], "%2s:%d", file, &cnt);
+
+	assert((fl = fopen("hypo.txt", "w")));
+
+	if (!(strcmp(file, "hd"))) {
+		printf("Hamming-Distance keybyte %d\n", cnt);
+		fprintf(fl, "sbox_out %d&ff sbox_in %d&ff 0 0\n", cnt, cnt);
+	} else if (!(strcmp(file, "hw"))) {
+		printf("Hamming-Weight keybyte %d\n", cnt);
+		fprintf(fl, "sbox_out %d&ff null 0&ff 0 0\n", cnt);
+	} else {
+		printf
+		    ("usage: hd:<keybyte> for hamming dist or hw:<keybyte> for hamming weight\n");
 		return 0;
 	}
-	
+
 	fclose(fl);
-	
+
 	// don't ask...
 	assert((hypos = hypo_templ_gen("hypo.txt", &hypo_templates, NULL)));
 	hypos *= 256;
-	
-	sprintf(file,"%s/aes.log",argv[2]);
+
+	sprintf(file, "%s/aes.log", argv[2]);
 	assert((ptxts = fopen(file, "r")));
-	
-	while(fgets(cryptdata, 512, ptxts)) {
-		
-		if(!(trace%20))
-			printf("trace %d\n",trace);
-				
-		assert(parse_hex(cryptdata, plain, 16) == (cryptdata+32));
-		
-		sprintf(file,"%s/%06d.dat",argv[2],trace);
+
+	while (fgets(cryptdata, 512, ptxts)) {
+
+		if (!(trace % 20))
+			printf("trace %d\n", trace);
+
+		assert(parse_hex(cryptdata, plain, 16) == (cryptdata + 32));
+
+		sprintf(file, "%s/%06d.dat", argv[2], trace);
 		assert(!(open_trace(&trace_mf, file)));
-		
+
 		// generate hypotheses
-		for(cnt=0; cnt<256; cnt++) {
-			memset(key, cnt&0xff, 16);
-			hypo_gen(plain, key, hypo_templates, hypotheses+cnt);
+		for (cnt = 0; cnt < 256; cnt++) {
+			memset(key, cnt & 0xff, 16);
+			hypo_gen(plain, key, hypo_templates, hypotheses + cnt);
 		}
-		
-		if(!dpa) {
+
+		if (!dpa) {
 			dpa = dpa_init(hypos, trace_mf.len);
-			assert((results = malloc(sizeof(correl_t)*(dpa->tracelen))));
+			assert((results =
+				malloc(sizeof(correl_t) * (dpa->tracelen))));
 			start = time(NULL);
 		}
-		
+
 		dpa_add(dpa, trace_mf.ptr, hypotheses);
-		
+
 		trace++;
 		last_cnt = trace;
-		
-		signif = 1.3*(4/sqrt((float)trace));
-		
+
+		signif = 1.3 * (4 / sqrt((float)trace));
+
 		max_correl = 0;
 		best_keybyte = 0;
-		
-		if(!(trace%100)) {
-		
-			for(cnt=0; cnt<hypos; cnt++) {
+
+		if (!(trace % 100)) {
+
+			for (cnt = 0; cnt < hypos; cnt++) {
 				float max;
-			
+
 				dpa_get_results(dpa, cnt, results, &max);
-			
-				if(ABS(max) > ABS(max_correl)) {
+
+				if (ABS(max) > ABS(max_correl)) {
 					max_correl = max;
 					best_keybyte = cnt;
 				}
 			}
-			printf("key guess 0x%02x correl: %f (signifcant: >=%f)\n",best_keybyte,max_correl,signif);
+			printf
+			    ("key guess 0x%02x correl: %f (signifcant: >=%f)\n",
+			     best_keybyte, max_correl, signif);
 		}
 	}
-	
+
 	runtime = time(NULL);
 	runtime -= start;
-		
+
 	dpa_speedinfo(dpa, runtime);
-			
+
 	// get results
 	dpa_get_results(dpa, best_keybyte, results, NULL);
-		
-	assert((fl=fopen("results.txt","w")));
-		
-	for(cnt=0; cnt < dpa->tracelen; cnt++)
-		fprintf(fl,"%d: %f\n",cnt,results[cnt]);
-	
+
+	assert((fl = fopen("results.txt", "w")));
+
+	for (cnt = 0; cnt < dpa->tracelen; cnt++)
+		fprintf(fl, "%d: %f\n", cnt, results[cnt]);
+
 	fclose(fl);
-	
+
 	free(results);
-	
+
 	dpa_destroy(&dpa);
-		
+
 	return 0;
 }
