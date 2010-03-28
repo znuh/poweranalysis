@@ -4,6 +4,8 @@
 #include <time.h>
 #include <stdint.h>
 
+#define ABS(a)	(((a)>0)?(a):(-a))
+
 #define ALIGN	16
 
 #define ALIGN_PTR(a)	(a)=(void*)( (((unsigned long) (a))+(ALIGN-1))& (~(ALIGN-1)))

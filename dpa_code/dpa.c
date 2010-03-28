@@ -190,8 +190,6 @@ void dpa_add(dpa_t * dpa, uint8_t * trace_data, uint8_t * hypos_data)
 	dpa->traces++;
 }
 
-#define ABS(a)	(((a)>0)?(a):(-a))
-
 void dpa_get_results(dpa_t * dpa, uint32_t hypo, correl_t * results, float *max)
 {
 	correl_t *sum_cross = dpa->sum_cross + hypo;
@@ -204,7 +202,7 @@ void dpa_get_results(dpa_t * dpa, uint32_t hypo, correl_t * results, float *max)
 	for (tracepos = 0; tracepos < dpa->tracelen; tracepos++) {
 		float res = (*sum_cross) / (sqrt_sumx * sqrt(*(sum_ysq++)));
 		*(results++) = res;
-		if (ABS(res) > max_val)
+		if (ABS(res) > ABS(max_val))
 			max_val = res;
 		sum_cross += hypo_cnt;
 	}

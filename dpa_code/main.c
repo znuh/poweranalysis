@@ -25,8 +25,6 @@
 #include "hypothesis.h"
 #include "utils.h"
 
-#define ABS(a)	(((a)>0)?(a):(-a))
-
 int open_trace(mf_t * mf, char *file)
 {
 
