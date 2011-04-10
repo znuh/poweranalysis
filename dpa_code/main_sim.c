@@ -72,9 +72,9 @@ int main(int argc, char **argv)
 		uint8_t rand[16];
 		uint8_t sres_kc[12];
 		char *p = parse_hex(buf+9, rand, 16);
-		assert(p == buf+9+16);
-		p = parse_hex(buf+9+16+1, sres_kc, 12);
-		assert(p == buf+9+16+1+12);
+		assert(p == buf+9+32);
+		p = parse_hex(buf+9+32+1, sres_kc, 12);
+		assert(p == buf+9+32+1+24);
 		int ofs;
 		float diff;
 
