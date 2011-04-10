@@ -114,7 +114,7 @@ int main(int argc, char **argv)
 	dpa_speedinfo(dpa, runtime);
 
 	signif = 1.3 * (4 / sqrt((float)trace));
-
+	printf("signif: %f\n", signif);
 
 	for (cnt = 0; cnt < hypos; cnt++) {
 		float max;
