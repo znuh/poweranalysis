@@ -95,7 +95,8 @@ int main(int argc, char **argv)
 			start = time(NULL);
 		}
 
-		dpa_add(dpa, trace_mf.ptr + trace_ofs, hypotheses);
+		assert(ofs <= trace_ofs);
+		dpa_add(dpa, trace_mf.ptr + trace_ofs - ofs, hypotheses);
 
 		trace++;
 		last_cnt = trace;
